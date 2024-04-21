@@ -11,12 +11,14 @@ public class AsteroidCreator {
     public Asteroid createAsteroid(GameData gameData, World world){
         Asteroid asteroid = new Asteroid();
         asteroid.setType(EntityType.ASTEROID);
-        Random dn = new Random();
-        int cords = dn.nextInt(10);
-        asteroid.setPolygonCoordinates(cords, -cords, -cords, -cords, -cords, cords, cords, cords);
+        Random rn = new Random();
+        double radius = rn.nextInt(10);
+
+        asteroid.setPolygonCoordinates(0, radius, radius, radius, radius, 0, 0, -radius, -radius, -radius, -radius, 0, 0, radius);
         asteroid.setX(gameData.getDisplayHeight()*Math.random());
         asteroid.setY(gameData.getDisplayWidth()*Math.random());
-        asteroid.setRadius(cords);
+        asteroid.setRadius((float) radius);
+        asteroid.setRotation(rn.nextDouble()*360);
         return asteroid;
     }
 }
