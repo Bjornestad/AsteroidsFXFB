@@ -8,6 +8,7 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+
 import static java.util.stream.Collectors.toList;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -113,19 +116,32 @@ public class Main extends Application {
         }
         for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
-            if(postEntityProcessorService instanceof CollisionDetection){
+            if (postEntityProcessorService instanceof CollisionDetection) {
                 ((CollisionDetection) postEntityProcessorService).setPolygons(polygons);
+            }
+        }
+        //remove entities(Bullets) if they go outside the game screen, as to not spawn too many entities
+        for (Entity entity : world.getEntities()) {
+            if (entity.getX() < 0
+                    || entity.getX() > gameData.getDisplayWidth()
+                    || entity.getY() < 0
+                    || entity.getY() > gameData.getDisplayHeight()) {
+                world.removeEntity(entity);
+                Polygon polygon = polygons.get(entity);
+                gameWindow.getChildren().remove(polygon);
+                polygons.remove(entity);
             }
         }
         //removes polygons from entity on death since removeEntity() doesnt do that
         polygons.entrySet().removeIf(entry -> {
-            if(!world.getEntities().contains(entry.getKey())){
-            gameWindow.getChildren().remove(entry.getValue());
-            System.out.println("Entity polygons begone");
-            return true;
-        }
-        return false;
+            if (!world.getEntities().contains(entry.getKey())) {
+                gameWindow.getChildren().remove(entry.getValue());
+                System.out.println("Entity polygons begone");
+                return true;
+            }
+            return false;
         });
+
     }
 
     private void draw() {
