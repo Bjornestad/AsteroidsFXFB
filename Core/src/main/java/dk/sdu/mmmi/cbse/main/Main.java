@@ -1,5 +1,6 @@
 package dk.sdu.mmmi.cbse.main;
 
+import dk.sdu.mmmi.cbse.collisionsystem.CollisionDetection;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.GameKeys;
@@ -112,7 +113,19 @@ public class Main extends Application {
         }
         for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
+            if(postEntityProcessorService instanceof CollisionDetection){
+                ((CollisionDetection) postEntityProcessorService).setPolygons(polygons);
+            }
         }
+        //removes polygons from entity on death since removeEntity() doesnt do that
+        polygons.entrySet().removeIf(entry -> {
+            if(!world.getEntities().contains(entry.getKey())){
+            gameWindow.getChildren().remove(entry.getValue());
+            System.out.println("Entity polygons begone");
+            return true;
+        }
+        return false;
+        });
     }
 
     private void draw() {

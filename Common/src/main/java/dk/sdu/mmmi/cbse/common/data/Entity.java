@@ -64,7 +64,7 @@ public class Entity implements Serializable {
     public void setType(EntityType type) {
         this.type = type;
     }
-    public EntityType getType() {
+    public EntityType getEntityType() {
         return type;
     }
 }
