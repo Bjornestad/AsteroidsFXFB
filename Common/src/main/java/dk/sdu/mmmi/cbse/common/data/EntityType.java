@@ -5,5 +5,6 @@ public enum EntityType {
     ENEMY,
     BULLET,
     ASTEROID,
+    ASTEROID_SPLIT,
     NONE
 }

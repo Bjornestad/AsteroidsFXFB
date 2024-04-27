@@ -24,6 +24,7 @@ public class AsteroidSplitter implements AsteroidSplitterSPI {
             asteroid.setY(entity.getY());
             asteroid.setRadius(5);
             asteroid.setRotation(entity.getRotation() + i * 60);
+            asteroid.setSplitAble(false);
             splitAsteroids.add(asteroid);
         }
         return splitAsteroids;
