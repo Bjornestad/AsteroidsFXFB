@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class AsteroidMovement implements IEntityProcessingService {
 
-    int maxAsteroidSpawns = 10;
+    int maxAsteroidSpawns = 4;
 
     @Override
     public void process(GameData gameData, World world) {

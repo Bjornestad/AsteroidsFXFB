@@ -1,5 +1,6 @@
 package dk.sdu.mmmi.cbse.collisionsystem;
 
+import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
@@ -25,9 +26,17 @@ public class CollisionDetection implements IPostEntityProcessingService {
     public void process(GameData gameData, World world) {
         for (Entity e1 : world.getEntities()) {
             for (Entity e2 : world.getEntities()) {
+                //First check if the entities are the same, if they are ignore collision
                 if (e1.getEntityType() == e2.getEntityType()) {
                     continue;
                 }
+                //Then check who shot the bullet, if the bullet was shot by the entity it is colliding with it ignores collision
+                if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() == e2) ||
+                        (e2 instanceof Bullet && ((Bullet) e2).getShooter() == e1)) {
+                    continue;
+                }
+                //If the entities are different and bullet was not shot by the entity it is colliding with
+                //then remove said entities from thw world
                 if (this.collide(e1, e2)) {
                     world.removeEntity(e1);
                     world.removeEntity(e2);

@@ -3,7 +3,9 @@ package dk.sdu.mmmi.cbse.common.asteroids;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.World;
 
-public interface IAsteroidSplitter {
+import java.util.List;
+
+public interface AsteroidSplitterSPI {
     /**
      * Create a split asteroid.
      *
@@ -22,5 +24,5 @@ public interface IAsteroidSplitter {
      * @param entity The asteroid entity to split.
      * @param world The world to create the split asteroid in.
      */
-    void createSplitAsteroid(Entity entity, World world);
+    List<Asteroid> createSplitAsteroid(Entity entity, World world);
 }
