@@ -28,52 +28,46 @@ public class CollisionDetection implements IPostEntityProcessingService {
 
     @Override
     public void process(GameData gameData, World world) {
+        //For some reason EntityType only works here for the checks and im not entirely sure why
+        //So instanceof is used for the other ones, prob not good with jpms in mind
+        //but i really cant figure it out
         for (Entity e1 : world.getEntities()) {
             for (Entity e2 : world.getEntities()) {
                 //First check if the entities are the same, if they are ignore collision
-                if (e1.getEntityType() == e2.getEntityType()) {
+                if (e1.getEntityType() == e2.getEntityType() || !this.collide(e1, e2)) {
                     continue;
                 }
                 //Then check who shot the bullet, if the bullet was shot by the entity it is colliding with it ignores collision
+                //This is mostly for the enemies as they tend to die to their own bullets
                 if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() == e2) ||
                         (e2 instanceof Bullet && ((Bullet) e2).getShooter() == e1)) {
                     continue;
                 }
-                if (this.collide(e1, e2)) {
-                    // Check if e1 is a bullet and e2 is an asteroid
-                    if (e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID && ((Asteroid) e2).isSplitAble()) {
-                        world.removeEntity(e1);
-                        world.removeEntity(e2);
-                        AsteroidSplitter AstroidSplitter = new AsteroidSplitter();
-                        // Create split asteroids and add them to the world
-                        List<Asteroid> splitAsteroids = AstroidSplitter.createSplitAsteroid(gameData, e2.getX(), e2.getY(), e2.getRotation());
-                        for (Asteroid asteroid : splitAsteroids) {
-                            world.addEntity(asteroid);
-                        }
-                    }
-                    // Check if e2 is a bullet and e1 is an asteroid
-                    else if (e1.getType() == EntityType.ASTEROID && e2.getType() == EntityType.BULLET && ((Asteroid) e1).isSplitAble()) {
-                        world.removeEntity(e1);
-                        world.removeEntity(e2);
-                        // Create split asteroids and add them to the world
-                        List<Asteroid> splitAsteroids = asteroidCreator.createSplitAsteroid(gameData, e1.getX(), e1.getY(), e1.getRotation());
-                        for (Asteroid asteroid : splitAsteroids) {
-                            world.addEntity(asteroid);
-                        }
-                    }
-                    //If the entities are different and bullet was not shot by the entity it is colliding with
-                    //then remove said entities from thw world
+                if ((e1 instanceof Asteroid && e2 instanceof Bullet) ||
+                        (e1 instanceof Bullet && e2 instanceof Asteroid)) {
                     if (this.collide(e1, e2)) {
-                        world.removeEntity(e1);
-                        world.removeEntity(e2);
+                        Entity asteroid = (e1 instanceof Asteroid) ? e1 : e2;
+                        AsteroidSplitter as = new AsteroidSplitter();
+                        List<Asteroid> splitAsteroids = as.createSplitAsteroid(asteroid, world);
+                        for (Asteroid splitAsteroid : splitAsteroids) {
+                            world.addEntity(splitAsteroid);
+                        }
                     }
                 }
+                //If the entities are different and bullet was not shot by the entity it is colliding with
+                //then remove the entities from thw world
+                if (this.collide(e1, e2)) {
+                    world.removeEntity(e1);
+                    world.removeEntity(e2);
+                }
+
             }
         }
     }
 
+
     //this is based on a circle hitbox which will mean that it doesnt fit fully
-    //but its something
+//but its something
     public boolean collide(Entity e1, Entity e2) {
         double dx = e1.getX() - e2.getX();
         double dy = e1.getY() - e2.getY();

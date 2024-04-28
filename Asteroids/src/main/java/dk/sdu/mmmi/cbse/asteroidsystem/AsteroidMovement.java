@@ -5,12 +5,14 @@ import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
+import dk.sdu.mmmi.cbse.common.asteroids.AsteroidSpillter;
 
 import java.util.Random;
 
 public class AsteroidMovement implements IEntityProcessingService {
 
     int maxAsteroidSpawns = 4;
+    int maxSmallAsteroids = 24;
 
     @Override
     public void process(GameData gameData, World world) {
@@ -18,7 +20,7 @@ public class AsteroidMovement implements IEntityProcessingService {
             asteroidBounceOnWalls(asteroid, gameData);
         }
 
-        if (world.getEntities(Asteroid.class).size() < maxAsteroidSpawns) {
+        if (world.getEntities(Asteroid.class).size() < maxAsteroidSpawns && world.getEntities(AsteroidSplitter.class).size() < maxSmallAsteroids){
             Entity asteroid = new AsteroidCreator().createAsteroid(gameData, world);
             world.addEntity(asteroid);
             System.out.println("Asteroid spawned");
