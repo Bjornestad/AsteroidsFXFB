@@ -42,7 +42,17 @@ public class World {
         }
         return r;
     }
-
+    public List<Entity> getEntitiesType(EntityType... entityTypes) {
+        List<Entity> r = new ArrayList<>();
+        for (Entity e : getEntities()) {
+            for (EntityType entityType : entityTypes) {
+                if (entityType.equals(e.getEntityType())) {
+                    r.add(e);
+                }
+            }
+        }
+        return r;
+    }
     public Entity getEntity(String ID) {
         return entityMap.get(ID);
     }

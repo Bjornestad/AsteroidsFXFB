@@ -3,7 +3,7 @@ package dk.sdu.mmmi.cbse.common.asteroids;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 
 public class Asteroid extends Entity {
-    private boolean splitAble;
+    private boolean splitAble = true;
 
     public boolean isSplitAble() {
         return splitAble;

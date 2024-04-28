@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 
 
 public class PlayerControlSystem implements IEntityProcessingService {
-    private int shotDelayMilisec = 500;
+    private int shotDelayMilisec = 300;
 
     @Override
     public void process(GameData gameData, World world) {
