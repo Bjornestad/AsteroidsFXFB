@@ -134,7 +134,6 @@ public class Main extends Application {
         polygons.entrySet().removeIf(entry -> {
             if (!world.getEntities().contains(entry.getKey())) {
                 gameWindow.getChildren().remove(entry.getValue());
-                System.out.println("Entity polygons begone");
                 return true;
             }
             return false;

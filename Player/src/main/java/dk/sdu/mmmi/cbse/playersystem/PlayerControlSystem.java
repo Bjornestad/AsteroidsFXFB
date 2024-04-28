@@ -30,8 +30,8 @@ public class PlayerControlSystem implements IEntityProcessingService {
             if (gameData.getKeys().isDown(GameKeys.UP)) {
                 double changeX = Math.cos(Math.toRadians(player.getRotation()));
                 double changeY = Math.sin(Math.toRadians(player.getRotation()));
-                player.setX(player.getX() + changeX);
-                player.setY(player.getY() + changeY);
+                player.setX(player.getX() + (changeX * 0.7));
+                player.setY(player.getY() + (changeY * 0.7));
             }
             //delay shot by shotDelayMilisec as to not fully machine gun everything
             if (gameData.getKeys().isDown(GameKeys.SPACE) && System.currentTimeMillis() - gameData.getLastShotTimer() > shotDelayMilisec) {

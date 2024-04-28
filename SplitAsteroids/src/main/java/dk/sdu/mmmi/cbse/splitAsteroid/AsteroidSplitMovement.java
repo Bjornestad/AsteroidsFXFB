@@ -49,8 +49,8 @@ public class AsteroidSplitMovement implements AsteroidSplitterSPI, IEntityProces
         double width = gameData.getDisplayWidth();
         double height = gameData.getDisplayHeight();
         double radius = asteroid.getRadius();
-        x += dx;
-        y += dy;
+        x += (dx * 0.01);
+        y += (dy * 0.01);
 
 
         if (x - radius < 0) {

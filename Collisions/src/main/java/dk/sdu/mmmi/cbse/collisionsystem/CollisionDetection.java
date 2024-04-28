@@ -37,6 +37,9 @@ public class CollisionDetection implements IEntityProcessingService {
                 if (e1.getEntityType() == e2.getEntityType() || !this.collide(e1, e2)) {
                     continue;
                 }
+                if ((e1 instanceof Asteroid && e2 instanceof Asteroid)) {
+                    continue;
+                }
                 //Then check who shot the bullet, if the bullet was shot by the entity it is colliding with it ignores collision
                 //This is mostly for the enemies as they tend to die to their own bullets
                 if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() == e2) ||
@@ -52,13 +55,11 @@ public class CollisionDetection implements IEntityProcessingService {
                         asteroid = (Asteroid) e2;
                     }
                     if (this.collide(e1, e2) && asteroid.isSplitAble()) {
-                        System.out.println("Splitable asteroid collided with bullet");
                         //Split asteroid on bullet hit
                         getAsteroidSplitterSPI().stream().findFirst().ifPresent(
                                 spi -> {
                                     List<Asteroid> ray;
                                     ray = spi.createSplitAsteroid(asteroid, gameData);
-                                    System.out.println("HIT");
                                     for(int i = 0; i < ray.size(); i++) {
                                         world.addEntity(ray.get(i));
                                     }
