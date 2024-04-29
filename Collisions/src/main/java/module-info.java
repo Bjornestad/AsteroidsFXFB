@@ -9,6 +9,7 @@ module Collisions {
     requires CommonBullet;
     requires CommonAsteroids;
     requires Asteroids;
+    requires Player;
+    requires Enemy;
     provides IGamePluginService with dk.sdu.mmmi.cbse.collisionsystem.CollisionPlugin;
-
 }
