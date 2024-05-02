@@ -12,6 +12,10 @@ import dk.sdu.mmmi.cbse.playersystem.Player;
 import javafx.scene.shape.Polygon;
 
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -184,6 +188,23 @@ public class CollisionDetection implements IEntityProcessingService {
     public void handleCollision(Entity e1, Entity e2, World world) {
         world.removeEntity(e1);
         world.removeEntity(e2);
+        if((e1 instanceof Player)){
+            System.out.println("player deadge");
+        } else {
+            addPointForHit();
+        }
+    }
+
+    public void addPointForHit(){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/score?amount=1"))
+                .build();
+        try {
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            System.out.println(e.getStackTrace());
+        }
     }
 
     //this is based on a circle hitbox which will mean that it doesnt fit fully

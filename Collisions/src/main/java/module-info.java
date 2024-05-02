@@ -11,5 +11,6 @@ module Collisions {
     requires Asteroids;
     requires Player;
     requires Enemy;
+    requires java.net.http;
     provides IGamePluginService with dk.sdu.mmmi.cbse.collisionsystem.CollisionPlugin;
 }
