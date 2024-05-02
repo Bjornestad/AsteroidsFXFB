@@ -95,105 +95,107 @@ public class CollisionDetection implements IEntityProcessingService {
                     handleBulletIgnoreHit(e1, e2);
                 } else if ((e2 instanceof Bullet && ((Bullet) e2).getShooter() == e1) && this.collide(e1, e2)) {
                     handleBulletIgnoreHit(e1, e2);
-                } else if ((e1 instanceof Player || e1 instanceof Enemy) && (e2 instanceof Bullet) && this.collide(e1,e2) && ((Bullet) e2).getShooter() != e1) {
+                } else if ((e1 instanceof Player || e1 instanceof Enemy) && (e2 instanceof Bullet) && this.collide(e1, e2) && ((Bullet) e2).getShooter() != e1) {
                     handleShipShot(e1, e2, world);
                     System.out.println("1");
-                } else if ((e2 instanceof Player || e2 instanceof Enemy) && (e1 instanceof Bullet) && this.collide(e1,e2) && ((Bullet) e1).getShooter() != e2) {
+                } else if ((e2 instanceof Player || e2 instanceof Enemy) && (e1 instanceof Bullet) && this.collide(e1, e2) && ((Bullet) e1).getShooter() != e2) {
                     handleShipShot(e1, e2, world);
                     System.out.println("2");
                 } else if (this.collide(e1, e2)) {
-                handleCollision(e1, e2, world);
+                    handleCollision(e1, e2, world);
+                }
             }
         }
     }
-}
 
-public void handleSameEntity(Entity e1, Entity e2) {
-    return;
-}
-
-public void handleAsteroidHit(Entity e1, Entity e2) {
-    return;
-}
-
-public void handleBulletIgnoreHit(Entity e1, Entity e2) {
-    return;
-}
-
-public void handleAsteroidBulletHit(Entity e1, Entity e2, World world, GameData gameData) {
-    Asteroid asteroid;
-    if (e1 instanceof Asteroid) {
-        asteroid = (Asteroid) e1;
-    } else {
-        asteroid = (Asteroid) e2;
-    }
-    if (this.collide(e1, e2) && asteroid.isSplitAble()) {
-        //Split asteroid on bullet hit
-        getAsteroidSplitterSPI().stream().findFirst().ifPresent(
-                spi -> {
-                    List<Asteroid> ray;
-                    ray = spi.createSplitAsteroid(asteroid, gameData);
-                    for (int i = 0; i < ray.size(); i++) {
-                        world.addEntity(ray.get(i));
-                    }
-                }
-        );
-        handleCollision(e1, e2, world);
-    }
-}
-
-public void handleShipShot(Entity e1, Entity e2, World world) {
-    Entity bullet, entity;
-    if (e1 instanceof Bullet) {
-        bullet = e1;
-        entity = e2;
-    } else {
-        bullet = e2;
-        entity = e1;
-    }
-
-    if (((Bullet) bullet).getShooter() == entity) {
+    public void handleSameEntity(Entity e1, Entity e2) {
         return;
     }
 
-    long systemTime = System.currentTimeMillis();
-    if (entity instanceof Player) {
-        Player player = (Player) entity;
-        if(systemTime - player.getLastDamageTimer() < 1000) {
-            ((Player) entity).setHealth(((Player) entity).getHealth() - 1);
-            player.setLastDamageTimer(systemTime);
-            System.out.println("-1Player");;
+    public void handleAsteroidHit(Entity e1, Entity e2) {
+        return;
+    }
+
+    public void handleBulletIgnoreHit(Entity e1, Entity e2) {
+        return;
+    }
+
+    public void handleAsteroidBulletHit(Entity e1, Entity e2, World world, GameData gameData) {
+        Asteroid asteroid;
+        if (e1 instanceof Asteroid) {
+            asteroid = (Asteroid) e1;
+        } else {
+            asteroid = (Asteroid) e2;
         }
-    } else if (entity instanceof Enemy) {
-        Enemy enemy = (Enemy) entity;
-        if(systemTime - enemy.getLastDamageTimer() < 1000) {
-            ((Enemy) entity).setHealth(((Enemy) entity).getHealth() - 1);
-            enemy.setLastDamageTimer(systemTime);
-            System.out.println("-1Enemy");
+        if (this.collide(e1, e2) && asteroid.isSplitAble()) {
+            //Split asteroid on bullet hit
+            getAsteroidSplitterSPI().stream().findFirst().ifPresent(
+                    spi -> {
+                        List<Asteroid> ray;
+                        ray = spi.createSplitAsteroid(asteroid, gameData);
+                        for (int i = 0; i < ray.size(); i++) {
+                            world.addEntity(ray.get(i));
+                        }
+                    }
+            );
+            handleCollision(e1, e2, world);
         }
     }
-    if ((entity instanceof Player && ((Player) entity).getHealth() <= 0) ||
-            (entity instanceof Enemy && ((Enemy) entity).getHealth() <= 0)) {
-        world.removeEntity(entity);
-        System.out.println("Ship died by damage");
+
+    public void handleShipShot(Entity e1, Entity e2, World world) {
+        //Function for handling ships getting hit by bullets thats not their own
+        Entity bullet, entity;
+        if (e1 instanceof Bullet) {
+            bullet = e1;
+            entity = e2;
+        } else {
+            bullet = e2;
+            entity = e1;
+        }
+
+        if (((Bullet) bullet).getShooter() == entity) {
+            return;
+        }
+
+        long systemTime = System.currentTimeMillis();
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            if (systemTime - player.getLastDamageTimer() >= 1000) {
+                ((Player) entity).setHealth(((Player) entity).getHealth() - 1);
+                player.setLastDamageTimer(systemTime);
+                System.out.println("-1Player");
+                ;
+            }
+        } else if (entity instanceof Enemy) {
+            Enemy enemy = (Enemy) entity;
+            if (systemTime - enemy.getLastDamageTimer() >= 1000) {
+                ((Enemy) entity).setHealth(((Enemy) entity).getHealth() - 1);
+                enemy.setLastDamageTimer(systemTime);
+                System.out.println("-1Enemy");
+            }
+        }
+        if ((entity instanceof Player && ((Player) entity).getHealth() <= 0) ||
+                (entity instanceof Enemy && ((Enemy) entity).getHealth() <= 0)) {
+            world.removeEntity(entity);
+            System.out.println("Ship died by damage");
+        }
     }
-}
 
-public void handleCollision(Entity e1, Entity e2, World world) {
-    world.removeEntity(e1);
-    world.removeEntity(e2);
-}
+    public void handleCollision(Entity e1, Entity e2, World world) {
+        world.removeEntity(e1);
+        world.removeEntity(e2);
+    }
 
-//this is based on a circle hitbox which will mean that it doesnt fit fully
+    //this is based on a circle hitbox which will mean that it doesnt fit fully
 //but its something
-public boolean collide(Entity e1, Entity e2) {
-    double dx = e1.getX() - e2.getX();
-    double dy = e1.getY() - e2.getY();
-    double distance = Math.sqrt(dx * dx + dy * dy);
-    return distance < e1.getRadius() + e2.getRadius();
-}
+    public boolean collide(Entity e1, Entity e2) {
+        double dx = e1.getX() - e2.getX();
+        double dy = e1.getY() - e2.getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < e1.getRadius() + e2.getRadius();
+    }
 
-private Collection<? extends AsteroidSplitterSPI> getAsteroidSplitterSPI() {
-    return ServiceLoader.load(AsteroidSplitterSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-}
+    private Collection<? extends AsteroidSplitterSPI> getAsteroidSplitterSPI() {
+        return ServiceLoader.load(AsteroidSplitterSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
 }
