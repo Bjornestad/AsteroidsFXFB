@@ -19,6 +19,7 @@ public class ScoringSystemApplication {
     @GetMapping("/score")
     public int calcScore(@RequestParam(value = "amount") int amount) {
         score += amount;
+        System.out.println("Score: " + score);
         return score;
     }
     @GetMapping("/getScore")

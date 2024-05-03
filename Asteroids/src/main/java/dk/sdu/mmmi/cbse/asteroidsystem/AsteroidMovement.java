@@ -34,7 +34,7 @@ public class AsteroidMovement implements IEntityProcessingService {
         double width = gameData.getDisplayWidth();
         double height = gameData.getDisplayHeight();
         double radius = asteroid.getRadius();
-        double changeSpeed = 0.4;
+        double changeSpeed = 0.1;
         x += dx * changeSpeed;
         y += dy * changeSpeed;
 

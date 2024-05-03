@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 public class CollisionDetection implements IEntityProcessingService {
 
     private Map<Entity, Polygon> polygons;
+    private long lastPointUpdateTime;
 
     public CollisionDetection() {
     }
@@ -95,33 +96,31 @@ public class CollisionDetection implements IEntityProcessingService {
                     handleAsteroidHit(e1, e2);
                 } else if ((e1 instanceof Asteroid && e2 instanceof Bullet) || (e1 instanceof Bullet && e2 instanceof Asteroid) && this.collide(e1, e2)) {
                     handleAsteroidBulletHit(e1, e2, world, gameData);
+                    handleSplitAsteroidBulletHit(e1, e2, world, gameData);
                 } else if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() == e2) && this.collide(e1, e2)) {
                     handleBulletIgnoreHit(e1, e2);
                 } else if ((e2 instanceof Bullet && ((Bullet) e2).getShooter() == e1) && this.collide(e1, e2)) {
                     handleBulletIgnoreHit(e1, e2);
                 } else if ((e1 instanceof Player || e1 instanceof Enemy) && (e2 instanceof Bullet) && this.collide(e1, e2) && ((Bullet) e2).getShooter() != e1) {
                     handleShipShot(e1, e2, world);
-                    System.out.println("1");
                 } else if ((e2 instanceof Player || e2 instanceof Enemy) && (e1 instanceof Bullet) && this.collide(e1, e2) && ((Bullet) e1).getShooter() != e2) {
                     handleShipShot(e1, e2, world);
-                    System.out.println("2");
                 } else if (this.collide(e1, e2)) {
                     handleCollision(e1, e2, world);
                 }
             }
         }
     }
-
+    //bunch of empty functions for handling different types of collisions
+    //could add things to them later similar to how the asteroid bounces on the wall
+    //also makes it somewhat more readable i think
     public void handleSameEntity(Entity e1, Entity e2) {
-        return;
     }
 
     public void handleAsteroidHit(Entity e1, Entity e2) {
-        return;
     }
 
     public void handleBulletIgnoreHit(Entity e1, Entity e2) {
-        return;
     }
 
     public void handleAsteroidBulletHit(Entity e1, Entity e2, World world, GameData gameData) {
@@ -142,6 +141,18 @@ public class CollisionDetection implements IEntityProcessingService {
                         }
                     }
             );
+            handleCollision(e1, e2, world);
+        }
+    }
+
+    public void handleSplitAsteroidBulletHit(Entity e1, Entity e2, World world, GameData gameData) {
+        Asteroid asteroid;
+        if (e1 instanceof Asteroid) {
+            asteroid = (Asteroid) e1;
+        } else {
+            asteroid = (Asteroid) e2;
+        }
+        if (this.collide(e1, e2) && !asteroid.isSplitAble()) {
             handleCollision(e1, e2, world);
         }
     }
@@ -188,22 +199,30 @@ public class CollisionDetection implements IEntityProcessingService {
     public void handleCollision(Entity e1, Entity e2, World world) {
         world.removeEntity(e1);
         world.removeEntity(e2);
-        if((e1 instanceof Player)){
+        if ((e1 instanceof Player)) {
             System.out.println("player deadge");
+            ((Player) e1).setPlayerAlive(false);
         } else {
-            addPointForHit();
+            long systemTime = System.currentTimeMillis();
+            if (systemTime - lastPointUpdateTime >= 1000) {
+                addPointForHit(e1, e2);
+                lastPointUpdateTime = systemTime;
+            }
         }
     }
 
-    public void addPointForHit(){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/score?amount=1"))
-                .build();
-        try {
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+    public void addPointForHit(Entity e1, Entity e2) {
+        if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() instanceof Player && (e2 instanceof Asteroid || e2 instanceof Enemy)) ||
+                (e2 instanceof Bullet && ((Bullet) e2).getShooter() instanceof Player && (e1 instanceof Asteroid || e1 instanceof Enemy))) {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8081/score?amount=1"))
+                    .build();
+            try {
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            } catch (Exception e) {
+                System.out.println(e.getStackTrace());
+            }
         }
     }
 

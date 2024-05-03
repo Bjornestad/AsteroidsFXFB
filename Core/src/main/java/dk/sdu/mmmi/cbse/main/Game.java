@@ -1,10 +1,7 @@
 package dk.sdu.mmmi.cbse.main;
 
 import dk.sdu.mmmi.cbse.collisionsystem.CollisionDetection;
-import dk.sdu.mmmi.cbse.common.data.Entity;
-import dk.sdu.mmmi.cbse.common.data.GameData;
-import dk.sdu.mmmi.cbse.common.data.GameKeys;
-import dk.sdu.mmmi.cbse.common.data.World;
+import dk.sdu.mmmi.cbse.common.data.*;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
@@ -37,7 +34,9 @@ public class Game {
     private final List<IGamePluginService> gamePluginServices;
     private final List<IEntityProcessingService> entityProcessingServices;
     private final List<IPostEntityProcessingService> postEntityProcessingServices;
-    private final Text scoreText = new Text(10, 20, "Destroyed asteroids: 0");
+    private final Text scoreText = new Text("Destroyed asteroids: 0");
+    private long lastPointUpdateTime;
+
 
 
     /*
@@ -50,6 +49,7 @@ public class Game {
         this.entityProcessingServices = entityProcessingServiceList;
         this.postEntityProcessingServices = postEntityProcessingServices;
     }
+
     public void start(Stage window) throws Exception {
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         scoreText.setX(50);
@@ -96,6 +96,18 @@ public class Game {
             Polygon polygon = new Polygon(entity.getPolygonCoordinates());
             polygons.put(entity, polygon);
             gameWindow.getChildren().add(polygon);
+        }
+        //reset score when app starts, as spring boot doesnt close when the game does
+        String url = "http://localhost:8081/reset";
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+        try {
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         render();
@@ -150,21 +162,7 @@ public class Game {
             }
             return false;
         });
-
-        String url = "http://localhost:8080/getScore";
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-        int score = 0;
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            score = Integer.parseInt(response.body());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        scoreText.setText("Destroyed asteroids: " + score);
+        updateScore();
 
 
     }
@@ -182,6 +180,33 @@ public class Game {
             polygon.setRotate(entity.getRotation());
         }
 
+    }
+
+    private void updateScore() {
+        if (world.getEntitiesType(EntityType.PLAYER).isEmpty()) {
+            return;
+        } else {
+            //Limit the amount of requests to the server to once per sec
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastPointUpdateTime >= 1000) {
+                String url = "http://localhost:8081/getScore";
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .build();
+                int score = 0;
+
+                try {
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    String response2 = response.body();
+                    score = Integer.parseInt(response2);
+                    lastPointUpdateTime = currentTime;
+                    scoreText.setText("Score: " + score);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private Collection<? extends IGamePluginService> getPluginServices() {
