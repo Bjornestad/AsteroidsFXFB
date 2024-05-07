@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.main;
 
-import dk.sdu.mmmi.cbse.collisionsystem.CollisionDetection;
 import dk.sdu.mmmi.cbse.common.data.*;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
@@ -138,9 +137,6 @@ public class Game {
         }
         for (IPostEntityProcessingService postEntityProcessorService : postEntityProcessingServices) {
             postEntityProcessorService.process(gameData, world);
-            if (postEntityProcessorService instanceof CollisionDetection) {
-                ((CollisionDetection) postEntityProcessorService).setPolygons(polygons);
-            }
         }
         //remove entities(Bullets) if they go outside the game screen, as to not spawn too many entities
         for (Entity entity : world.getEntities()) {

@@ -25,5 +25,5 @@ public interface AsteroidSplitterSPI {
      * @param entity The asteroid entity to split.
      * @param world The world to create the split asteroid in.
      */
-    List<Asteroid> createSplitAsteroid(Entity entity, GameData gameData);
+    List<Entity> createSplitAsteroid(Entity entity, GameData gameData);
 }

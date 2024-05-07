@@ -2,6 +2,7 @@ package dk.sdu.mmmi.cbse.collisiontest;
 
 import dk.sdu.mmmi.cbse.collisionsystem.CollisionDetection;
 import dk.sdu.mmmi.cbse.common.bullet.Bullet;
+import dk.sdu.mmmi.cbse.common.data.EntityType;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.enemysystem.Enemy;
 import dk.sdu.mmmi.cbse.playersystem.Player;
@@ -83,23 +84,16 @@ public class CollisionTest {
     void testBulletHittingNonOwnPlayerShip(){
         player.setHealth(3);
         player.setLastDamageTimer(System.currentTimeMillis()-2000);
-        bullet.setShooter(enemy);
         collisionDetection.handleShipShot(player, bullet, world);
         assertEquals(2, player.getHealth());
     }
-    @Test
-    void testBulletHittingOwnPlayerShip(){
-        player.setHealth(3);
-        player.setLastDamageTimer(System.currentTimeMillis()-2000);
-        bullet.setShooter(player);
-        collisionDetection.handleShipShot(player, bullet, world);
-        assertEquals(3, player.getHealth());
-    }
+
     @Test
     void testShipDying(){
         player.setHealth(1);
         player.setLastDamageTimer(System.currentTimeMillis()-2000);
-        bullet.setShooter(enemy);
+        //Player type wasnt set to player, am i dumb or did i forgor something?
+        player.setType(EntityType.PLAYER);
         collisionDetection.handleShipShot(player, bullet, world);
         assertTrue(world.getEntities(Player.class).isEmpty());
     }

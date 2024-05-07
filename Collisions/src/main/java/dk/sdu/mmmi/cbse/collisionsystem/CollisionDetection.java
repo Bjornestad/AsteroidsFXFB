@@ -1,14 +1,11 @@
 package dk.sdu.mmmi.cbse.collisionsystem;
 
-import dk.sdu.mmmi.cbse.common.asteroids.Asteroid;
 import dk.sdu.mmmi.cbse.common.asteroids.AsteroidSplitterSPI;
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.Entity;
+import dk.sdu.mmmi.cbse.common.data.EntityType;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
-import dk.sdu.mmmi.cbse.enemysystem.Enemy;
-import dk.sdu.mmmi.cbse.playersystem.Player;
 import javafx.scene.shape.Polygon;
 
 
@@ -86,6 +83,7 @@ public class CollisionDetection implements IEntityProcessingService {
             }
         }
         */
+    /*
     @Override
     public void process(GameData gameData, World world) {
         for (Entity e1 : world.getEntities()) {
@@ -111,6 +109,29 @@ public class CollisionDetection implements IEntityProcessingService {
             }
         }
     }
+    */
+    @Override
+    public void process(GameData gameData, World world) {
+        for (Entity e1 : world.getEntities()) {
+            for (Entity e2 : world.getEntities()) {
+                if (e1.getEntityType() == e2.getEntityType() && this.collide(e1, e2)) {
+                    handleSameEntity(e1, e2);
+                } else if ((e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.ASTEROID) && this.collide(e1, e2)) {
+                    handleAsteroidHit(e1, e2);
+                } else if (((e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.BULLET) || (e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID)) && this.collide(e1, e2)) {
+                    handleAsteroidBulletHit(e1, e2, world, gameData);
+                    handleSplitAsteroidBulletHit(e1, e2, world, gameData);
+                } else if (((e1.getEntityType() == EntityType.PLAYER || e1.getEntityType() == EntityType.ENEMY) && e2.getEntityType() == EntityType.BULLET) && this.collide(e1, e2)) {
+                    handleShipShot(e1, e2, world);
+                } else if (((e2.getEntityType() == EntityType.PLAYER || e2.getEntityType() == EntityType.ENEMY) && e1.getEntityType() == EntityType.BULLET) && this.collide(e1, e2)) {
+                    handleShipShot(e1, e2, world);
+                } else if (this.collide(e1, e2)) {
+                    handleCollision(e1, e2, world);
+                }
+            }
+        }
+    }
+
     //bunch of empty functions for handling different types of collisions
     //could add things to them later similar to how the asteroid bounces on the wall
     //also makes it somewhat more readable i think
@@ -120,77 +141,56 @@ public class CollisionDetection implements IEntityProcessingService {
     public void handleAsteroidHit(Entity e1, Entity e2) {
     }
 
-    public void handleBulletIgnoreHit(Entity e1, Entity e2) {
-    }
-
     public void handleAsteroidBulletHit(Entity e1, Entity e2, World world, GameData gameData) {
-        Asteroid asteroid;
-        if (e1 instanceof Asteroid) {
-            asteroid = (Asteroid) e1;
-        } else {
-            asteroid = (Asteroid) e2;
-        }
-        if (this.collide(e1, e2) && asteroid.isSplitAble()) {
+            Entity splitAbleEntity;
+            if (e1.isSplitAble()) {
+                splitAbleEntity = e1;
+            } else {
+                splitAbleEntity = e2;
+            }
             //Split asteroid on bullet hit
             getAsteroidSplitterSPI().stream().findFirst().ifPresent(
                     spi -> {
-                        List<Asteroid> ray;
-                        ray = spi.createSplitAsteroid(asteroid, gameData);
+                        List<Entity> ray;
+                        ray = spi.createSplitAsteroid(splitAbleEntity, gameData);
                         for (int i = 0; i < ray.size(); i++) {
                             world.addEntity(ray.get(i));
                         }
                     }
             );
             handleCollision(e1, e2, world);
-        }
+
     }
 
     public void handleSplitAsteroidBulletHit(Entity e1, Entity e2, World world, GameData gameData) {
-        Asteroid asteroid;
-        if (e1 instanceof Asteroid) {
-            asteroid = (Asteroid) e1;
+        Entity splitAsteroid;
+        if (e1.getEntityType() == EntityType.ASTEROID_SPLIT) {
+            splitAsteroid = e1;
         } else {
-            asteroid = (Asteroid) e2;
+            splitAsteroid = e2;
         }
-        if (this.collide(e1, e2) && !asteroid.isSplitAble()) {
+        if (this.collide(e1, e2) && !splitAsteroid.isSplitAble()) {
             handleCollision(e1, e2, world);
         }
     }
 
     public void handleShipShot(Entity e1, Entity e2, World world) {
-        //Function for handling ships getting hit by bullets thats not their own
         Entity bullet, entity;
-        if (e1 instanceof Bullet) {
+        if (e1.getEntityType() == EntityType.BULLET) {
             bullet = e1;
             entity = e2;
         } else {
             bullet = e2;
             entity = e1;
         }
-
-        if (((Bullet) bullet).getShooter() == entity) {
-            return;
-        }
-
+        world.removeEntity(bullet);
         long systemTime = System.currentTimeMillis();
-        if (entity instanceof Player) {
-            Player player = (Player) entity;
-            if (systemTime - player.getLastDamageTimer() >= 1000) {
-                ((Player) entity).setHealth(((Player) entity).getHealth() - 1);
-                player.setLastDamageTimer(systemTime);
-                System.out.println("-1Player");
-                ;
-            }
-        } else if (entity instanceof Enemy) {
-            Enemy enemy = (Enemy) entity;
-            if (systemTime - enemy.getLastDamageTimer() >= 1000) {
-                ((Enemy) entity).setHealth(((Enemy) entity).getHealth() - 1);
-                enemy.setLastDamageTimer(systemTime);
-                System.out.println("-1Enemy");
-            }
+        if (systemTime - entity.getLastDamageTimer() >= 1000) {
+            entity.setHealth(entity.getHealth() - 1);
+            entity.setLastDamageTimer(systemTime);
         }
-        if ((entity instanceof Player && ((Player) entity).getHealth() <= 0) ||
-                (entity instanceof Enemy && ((Enemy) entity).getHealth() <= 0)) {
+        if ((entity.getEntityType() == EntityType.PLAYER && entity.getHealth() <= 0) ||
+                (entity.getEntityType() == EntityType.ENEMY && entity.getHealth() <= 0)) {
             world.removeEntity(entity);
             System.out.println("Ship died by damage");
         }
@@ -199,9 +199,9 @@ public class CollisionDetection implements IEntityProcessingService {
     public void handleCollision(Entity e1, Entity e2, World world) {
         world.removeEntity(e1);
         world.removeEntity(e2);
-        if ((e1 instanceof Player)) {
+        if (e1.getEntityType() == EntityType.PLAYER) {
             System.out.println("player deadge");
-            ((Player) e1).setPlayerAlive(false);
+            e1.setPlayerAlive(false);
         } else {
             long systemTime = System.currentTimeMillis();
             if (systemTime - lastPointUpdateTime >= 1000) {
@@ -212,8 +212,10 @@ public class CollisionDetection implements IEntityProcessingService {
     }
 
     public void addPointForHit(Entity e1, Entity e2) {
-        if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() instanceof Player && (e2 instanceof Asteroid || e2 instanceof Enemy)) ||
-                (e2 instanceof Bullet && ((Bullet) e2).getShooter() instanceof Player && (e1 instanceof Asteroid || e1 instanceof Enemy))) {
+        //if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() instanceof Player && (e2 instanceof Asteroid || e2 instanceof Enemy)) ||
+        //      (e2 instanceof Bullet && ((Bullet) e2).getShooter() instanceof Player && (e1 instanceof Asteroid || e1 instanceof Enemy))) {
+        if (e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID
+                || e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.BULLET) {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8081/score?amount=1"))
@@ -227,7 +229,7 @@ public class CollisionDetection implements IEntityProcessingService {
     }
 
     //this is based on a circle hitbox which will mean that it doesnt fit fully
-//but its something
+    //but its something
     public boolean collide(Entity e1, Entity e2) {
         double dx = e1.getX() - e2.getX();
         double dy = e1.getY() - e2.getY();

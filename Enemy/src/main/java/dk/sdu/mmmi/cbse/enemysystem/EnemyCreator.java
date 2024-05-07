@@ -16,6 +16,7 @@ public class EnemyCreator {
         enemy.setX(gameData.getDisplayHeight()*Math.random());
         enemy.setY(gameData.getDisplayWidth()*Math.random());
         enemy.setRotation(Math.random()*360);
+        enemy.setHealth(3);
 
         return enemy;
     }
