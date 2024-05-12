@@ -8,9 +8,9 @@ module Collisions {
     requires javafx.graphics;
     requires CommonBullet;
     requires CommonAsteroids;
-    requires Asteroids;
-    requires Player;
-    requires Enemy;
+    //requires Asteroids;
+    //requires Player;
+    //requires Enemy;
     requires java.net.http;
     provides IGamePluginService with dk.sdu.mmmi.cbse.collisionsystem.CollisionPlugin;
 }
