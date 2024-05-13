@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.splitAsteroid;
 
-import dk.sdu.mmmi.cbse.common.asteroids.Asteroid;
 import dk.sdu.mmmi.cbse.common.asteroids.AsteroidSplitterSPI;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.EntityType;
@@ -15,7 +14,7 @@ public class AsteroidSplitMovement implements AsteroidSplitterSPI, IEntityProces
 
     @Override
     public void process(GameData gameData, World world) {
-        for (Entity asteroid : world.getEntities(Asteroid.class)) {
+        for (Entity asteroid : world.getEntitiesType(EntityType.ASTEROID_SPLIT)) {
             asteroidBounceOnWalls(asteroid, gameData);
         }
     }
@@ -26,7 +25,7 @@ public class AsteroidSplitMovement implements AsteroidSplitterSPI, IEntityProces
         //Splits the asteroid like a pizza
         List<Entity> splitAsteroids = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
-            Entity asteroid = new Asteroid();
+            Entity asteroid = new Entity();
             asteroid.setType(EntityType.ASTEROID_SPLIT);
             asteroid.setPolygonCoordinates(0, 0, 10, 0, 5, 8.66);
             asteroid.setX(hitAsteroid.getX());
@@ -49,8 +48,8 @@ public class AsteroidSplitMovement implements AsteroidSplitterSPI, IEntityProces
         double width = gameData.getDisplayWidth();
         double height = gameData.getDisplayHeight();
         double radius = asteroid.getRadius();
-        x += (dx * 0.01);
-        y += (dy * 0.01);
+        x += (dx * 0.1);
+        y += (dy * 0.1);
 
 
         if (x - radius < 0) {
