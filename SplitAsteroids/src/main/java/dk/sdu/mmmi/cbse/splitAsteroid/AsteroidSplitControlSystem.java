@@ -10,7 +10,7 @@ import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AsteroidSplitMovement implements AsteroidSplitterSPI, IEntityProcessingService {
+public class AsteroidSplitControlSystem implements AsteroidSplitterSPI, IEntityProcessingService {
 
     @Override
     public void process(GameData gameData, World world) {
