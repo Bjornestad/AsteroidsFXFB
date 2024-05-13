@@ -15,7 +15,6 @@ public interface AsteroidSplitterSPI {
      *
      * pre condition :
      * Entity is not null
-     * World is not null
      * Has to be an asteroid entity
      *
      * Post :
@@ -23,7 +22,6 @@ public interface AsteroidSplitterSPI {
      * it split from
      *
      * @param entity The asteroid entity to split.
-     * @param world The world to create the split asteroid in.
      */
-    List<Entity> createSplitAsteroid(Entity entity, GameData gameData);
+    List<Entity> createSplitAsteroid(Entity entity);
 }

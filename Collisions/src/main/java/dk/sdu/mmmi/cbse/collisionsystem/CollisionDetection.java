@@ -6,6 +6,7 @@ import dk.sdu.mmmi.cbse.common.data.EntityType;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
+import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
 import javafx.scene.shape.Polygon;
 
 
@@ -17,7 +18,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
-public class CollisionDetection implements IEntityProcessingService {
+public class CollisionDetection implements IPostEntityProcessingService{
 
     private Map<Entity, Polygon> polygons;
     private long lastPointUpdateTime;
@@ -152,7 +153,7 @@ public class CollisionDetection implements IEntityProcessingService {
             getAsteroidSplitterSPI().stream().findFirst().ifPresent(
                     spi -> {
                         List<Entity> ray;
-                        ray = spi.createSplitAsteroid(splitAbleEntity, gameData);
+                        ray = spi.createSplitAsteroid(splitAbleEntity);
                         for (int i = 0; i < ray.size(); i++) {
                             world.addEntity(ray.get(i));
                         }

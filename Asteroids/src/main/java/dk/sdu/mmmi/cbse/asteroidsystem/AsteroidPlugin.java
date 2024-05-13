@@ -1,6 +1,7 @@
 package dk.sdu.mmmi.cbse.asteroidsystem;
 
 import dk.sdu.mmmi.cbse.common.asteroids.Asteroid;
+import dk.sdu.mmmi.cbse.common.asteroids.AsteroidSPI;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.EntityType;
 import dk.sdu.mmmi.cbse.common.data.GameData;
@@ -9,7 +10,7 @@ import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 
 import java.util.Random;
 
-public class AsteroidPlugin implements IGamePluginService {
+public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
     @Override
     public void start(GameData gameData, World world) {
         Entity asteroid = createAsteroid(gameData, world);
@@ -22,8 +23,9 @@ public class AsteroidPlugin implements IGamePluginService {
             world.removeEntity(asteroid);
         }
     }
-    public Asteroid createAsteroid(GameData gameData, World world){
-        Asteroid asteroid = new Asteroid();
+    @Override
+    public Entity createAsteroid(GameData gameData, World world){
+        Entity asteroid = new Asteroid();
         asteroid.setType(EntityType.ASTEROID);
         Random rn = new Random();
 

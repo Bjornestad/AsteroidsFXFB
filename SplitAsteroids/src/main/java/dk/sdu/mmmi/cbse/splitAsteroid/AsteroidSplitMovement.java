@@ -22,11 +22,11 @@ public class AsteroidSplitMovement implements AsteroidSplitterSPI, IEntityProces
 
 
     @Override
-    public List<Entity> createSplitAsteroid(Entity hitAsteroid, GameData gameData){
+    public List<Entity> createSplitAsteroid(Entity hitAsteroid){
         //Splits the asteroid like a pizza
         List<Entity> splitAsteroids = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
-            Asteroid asteroid = new Asteroid();
+            Entity asteroid = new Asteroid();
             asteroid.setType(EntityType.ASTEROID_SPLIT);
             asteroid.setPolygonCoordinates(0, 0, 10, 0, 5, 8.66);
             asteroid.setX(hitAsteroid.getX());
