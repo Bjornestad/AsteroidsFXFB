@@ -19,7 +19,7 @@ public class PlayerControlSystem implements IEntityProcessingService {
 
     @Override
     public void process(GameData gameData, World world) {
-
+        double movementSpeedModifier = 0.3;
         for (Entity player : world.getEntities(Player.class)) {
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
                 player.setRotation(player.getRotation() - 1);
@@ -30,8 +30,8 @@ public class PlayerControlSystem implements IEntityProcessingService {
             if (gameData.getKeys().isDown(GameKeys.UP)) {
                 double changeX = Math.cos(Math.toRadians(player.getRotation()));
                 double changeY = Math.sin(Math.toRadians(player.getRotation()));
-                player.setX(player.getX() + (changeX * 0.3));
-                player.setY(player.getY() + (changeY * 0.3));
+                player.setX(player.getX() + (changeX * movementSpeedModifier));
+                player.setY(player.getY() + (changeY * movementSpeedModifier));
             }
             //delay shot by shotDelayMilisec as to not fully machine gun everything
             if (gameData.getKeys().isDown(GameKeys.SPACE) && System.currentTimeMillis() - gameData.getLastShotTimer() > shotDelayMilisec) {
@@ -40,6 +40,20 @@ public class PlayerControlSystem implements IEntityProcessingService {
                         }
                 );
                 gameData.setLastShotTimer(System.currentTimeMillis());
+
+                /*
+                To show how the different streams can be used
+                getBulletSPIs().stream().filter(spi -> spi.getClass().getName().contains("Bullet")).findFirst().ifPresent(spi -> {
+                            world.addEntity(spi.createBullet(player, gameData));
+                        }
+                );
+
+                getBulletSPIs().stream().findAny().ifPresent(spi -> {
+                            world.addEntity(spi.createBullet(player, gameData));
+                        }
+                );
+                */
+
             }
 
             if (player.getX() < 0) {

@@ -23,30 +23,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
             Entity enemy = new EnemyPlugin().createEnemy(gameData, world);
             world.addEntity(enemy);
         }
-
         for(Entity enemy : world.getEntitiesType(EntityType.ENEMY)){
-
-            /*
-            double changeX = Math.cos(Math.toRadians(enemy.getRotation()));
-            double changeY = Math.cos(Math.toRadians(enemy.getRotation()));
-            enemy.setX(enemy.getX() + changeX);
-            enemy.setY(enemy.getY() + changeY);
-            double width = gameData.getDisplayWidth();
-            double height = gameData.getDisplayHeight();
-
-            if(enemy.getX() < 0){
-                enemy.setRotation(enemy.getRotation() + 5);
-            }
-            if(enemy.getX() > width){
-                enemy.setRotation(enemy.getRotation() - 5);
-            }
-            if(enemy.getY() < 0){
-                enemy.setRotation(enemy.getRotation() + 5);
-            }
-            if(enemy.getY() > height){
-                enemy.setRotation(enemy.getRotation() - 5);
-            }
-            */
             Entity closestEntity = null;
             double closestDistance = Double.MAX_VALUE;
             //using euclidean distance to find whatever entity is closest to the enemy ship
@@ -59,14 +36,14 @@ public class EnemyControlSystem implements IEntityProcessingService {
                     if(distance < closestDistance){
                         closestEntity = entity;
                         closestDistance = distance;
-
                     }
                 }
             }
             //targeting the closest entity to enemy, with a slight delay to the rotation
             //so it doesnt go full aimhacks
             //also dont aim at enemies cuz my enemy of my enemy is my friend eh? or something xd
-            if(closestEntity != null && closestEntity.getEntityType() != EntityType.ENEMY && closestEntity.getEntityType() != EntityType.BULLET){
+            if(closestEntity != null && closestEntity.getEntityType() != EntityType.ENEMY
+                    && closestEntity.getEntityType() != EntityType.BULLET){
                 double dx = closestEntity.getX() - enemy.getX();
                 double dy = closestEntity.getY() - enemy.getY();
                 double targetEntityAngle = Math.atan2(dy, dx) * (180/Math.PI);

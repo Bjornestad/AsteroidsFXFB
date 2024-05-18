@@ -18,7 +18,8 @@ public class AsteroidControlSystem implements IEntityProcessingService {
             asteroidBounceOnWalls(asteroid, gameData);
         }
 
-        if (world.getEntitiesType(EntityType.ASTEROID).size() < maxAsteroidSpawns && world.getEntitiesType(EntityType.ASTEROID_SPLIT).size() < maxSmallAsteroids){
+        if (world.getEntitiesType(EntityType.ASTEROID).size() < maxAsteroidSpawns
+                && world.getEntitiesType(EntityType.ASTEROID_SPLIT).size() < maxSmallAsteroids){
             Entity asteroid = new AsteroidPlugin().createAsteroid(gameData, world);
             world.addEntity(asteroid);
             System.out.println("Asteroid spawned");

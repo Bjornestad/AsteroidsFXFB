@@ -117,14 +117,19 @@ public class CollisionDetection implements IPostEntityProcessingService{
             for (Entity e2 : world.getEntities()) {
                 if (e1.getEntityType() == e2.getEntityType() && this.collide(e1, e2)) {
                     handleSameEntity(e1, e2);
-                } else if ((e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.ASTEROID) && this.collide(e1, e2)) {
+                } else if ((e1.getEntityType() == EntityType.ASTEROID &&
+                        e2.getEntityType() == EntityType.ASTEROID) && this.collide(e1, e2)) {
                     handleAsteroidHit(e1, e2);
-                } else if (((e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.BULLET) || (e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID)) && this.collide(e1, e2)) {
+                } else if (((e1.getEntityType() == EntityType.ASTEROID &&
+                        e2.getEntityType() == EntityType.BULLET) || (e1.getEntityType() == EntityType.BULLET &&
+                        e2.getEntityType() == EntityType.ASTEROID)) && this.collide(e1, e2)) {
                     handleAsteroidBulletHit(e1, e2, world, gameData);
                     handleSplitAsteroidBulletHit(e1, e2, world, gameData);
-                } else if (((e1.getEntityType() == EntityType.PLAYER || e1.getEntityType() == EntityType.ENEMY) && e2.getEntityType() == EntityType.BULLET) && this.collide(e1, e2)) {
+                } else if (((e1.getEntityType() == EntityType.PLAYER || e1.getEntityType() == EntityType.ENEMY) &&
+                        e2.getEntityType() == EntityType.BULLET) && this.collide(e1, e2)) {
                     handleShipShot(e1, e2, world);
-                } else if (((e2.getEntityType() == EntityType.PLAYER || e2.getEntityType() == EntityType.ENEMY) && e1.getEntityType() == EntityType.BULLET) && this.collide(e1, e2)) {
+                } else if (((e2.getEntityType() == EntityType.PLAYER || e2.getEntityType() == EntityType.ENEMY) &&
+                        e1.getEntityType() == EntityType.BULLET) && this.collide(e1, e2)) {
                     handleShipShot(e1, e2, world);
                 } else if (this.collide(e1, e2)) {
                     handleCollision(e1, e2, world);
@@ -213,8 +218,6 @@ public class CollisionDetection implements IPostEntityProcessingService{
     }
 
     public void addPointForHit(Entity e1, Entity e2) {
-        //if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() instanceof Player && (e2 instanceof Asteroid || e2 instanceof Enemy)) ||
-        //      (e2 instanceof Bullet && ((Bullet) e2).getShooter() instanceof Player && (e1 instanceof Asteroid || e1 instanceof Enemy))) {
         if (e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID
                 || e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.BULLET) {
             HttpClient client = HttpClient.newHttpClient();
