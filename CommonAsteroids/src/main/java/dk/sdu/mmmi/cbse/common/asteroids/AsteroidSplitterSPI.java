@@ -10,14 +10,12 @@ public interface AsteroidSplitterSPI {
     /**
      * Create a split asteroid.
      *
-     * Not sure if the classwork assignment meant for all interfaces to be
-     * documented like this, just doing to be safe
      *
-     * pre condition :
+     * pre-condition :
      * Entity is not null
      * Has to be an asteroid entity
      *
-     * Post :
+     * Post-condition :
      * New asteroid entity is created but smaller than the one
      * it split from
      *
