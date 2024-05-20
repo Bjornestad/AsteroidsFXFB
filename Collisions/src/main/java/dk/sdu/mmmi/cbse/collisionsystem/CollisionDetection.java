@@ -30,89 +30,10 @@ public class CollisionDetection implements IPostEntityProcessingService{
         this.polygons = polygons;
     }
 
-    /*
-        @Override
-        public void process(GameData gameData, World world) {
-            //For some reason EntityType only works here for the checks and im not entirely sure why
-            //So instanceof is used for the other ones, prob not good with jpms in mind
-            //but i really cant figure it out
-            for (Entity e1 : world.getEntities()) {
-                for (Entity e2 : world.getEntities()) {
-                    //First check if the entities are the same, if they are ignore collision
-                    if (e1.getEntityType() == e2.getEntityType() || !this.collide(e1, e2)) {
-                        continue;
-                    }
-                    if ((e1 instanceof Asteroid && e2 instanceof Asteroid)) {
-                        continue;
-                    }
-                    //Then check who shot the bullet, if the bullet was shot by the entity it is colliding with it ignores collision
-                    //This is mostly for the enemies as they tend to die to their own bullets
-                    if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() == e2) ||
-                            (e2 instanceof Bullet && ((Bullet) e2).getShooter() == e1)) {
-                        continue;
-                    }
-                    if ((e1 instanceof Asteroid && e2 instanceof Bullet) ||
-                            (e1 instanceof Bullet && e2 instanceof Asteroid)) {
-                        Asteroid asteroid;
-                        if(e1 instanceof Asteroid) {
-                            asteroid = (Asteroid) e1;
-                        } else {
-                            asteroid = (Asteroid) e2;
-                        }
-                        if (this.collide(e1, e2) && asteroid.isSplitAble()) {
-                            //Split asteroid on bullet hit
-                            getAsteroidSplitterSPI().stream().findFirst().ifPresent(
-                                    spi -> {
-                                        List<Asteroid> ray;
-                                        ray = spi.createSplitAsteroid(asteroid, gameData);
-                                        for(int i = 0; i < ray.size(); i++) {
-                                            world.addEntity(ray.get(i));
-                                        }
-                                    }
-                            );
-                        }
 
-                    }
-                    //If the entities are different and bullet was not shot by the entity it is colliding with
-                    //then remove the entities from thw world
-                    if (this.collide(e1, e2)) {
-                        world.removeEntity(e1);
-                        world.removeEntity(e2);
-                    }
-
-                }
-            }
-        }
-        */
-    /*
     @Override
     public void process(GameData gameData, World world) {
-        for (Entity e1 : world.getEntities()) {
-            for (Entity e2 : world.getEntities()) {
-                if (e1.getEntityType() == e2.getEntityType() && this.collide(e1, e2)) {
-                    handleSameEntity(e1, e2);
-                } else if ((e1 instanceof Asteroid && e2 instanceof Asteroid) && this.collide(e1, e2)) {
-                    handleAsteroidHit(e1, e2);
-                } else if ((e1 instanceof Asteroid && e2 instanceof Bullet) || (e1 instanceof Bullet && e2 instanceof Asteroid) && this.collide(e1, e2)) {
-                    handleAsteroidBulletHit(e1, e2, world, gameData);
-                    handleSplitAsteroidBulletHit(e1, e2, world, gameData);
-                } else if ((e1 instanceof Bullet && ((Bullet) e1).getShooter() == e2) && this.collide(e1, e2)) {
-                    handleBulletIgnoreHit(e1, e2);
-                } else if ((e2 instanceof Bullet && ((Bullet) e2).getShooter() == e1) && this.collide(e1, e2)) {
-                    handleBulletIgnoreHit(e1, e2);
-                } else if ((e1 instanceof Player || e1 instanceof Enemy) && (e2 instanceof Bullet) && this.collide(e1, e2) && ((Bullet) e2).getShooter() != e1) {
-                    handleShipShot(e1, e2, world);
-                } else if ((e2 instanceof Player || e2 instanceof Enemy) && (e1 instanceof Bullet) && this.collide(e1, e2) && ((Bullet) e1).getShooter() != e2) {
-                    handleShipShot(e1, e2, world);
-                } else if (this.collide(e1, e2)) {
-                    handleCollision(e1, e2, world);
-                }
-            }
-        }
-    }
-    */
-    @Override
-    public void process(GameData gameData, World world) {
+        //there is def a better way to go about this but brain isnt braining so sry
         for (Entity e1 : world.getEntities()) {
             for (Entity e2 : world.getEntities()) {
                 if (e1.getEntityType() == e2.getEntityType() && this.collide(e1, e2)) {
@@ -219,7 +140,9 @@ public class CollisionDetection implements IPostEntityProcessingService{
 
     public void addPointForHit(Entity e1, Entity e2) {
         if (e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID
-                || e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.BULLET) {
+                || e1.getEntityType() == EntityType.ASTEROID && e2.getEntityType() == EntityType.BULLET ||
+                e1.getEntityType() == EntityType.ASTEROID_SPLIT && e2.getEntityType() == EntityType.BULLET ||
+                e1.getEntityType() == EntityType.BULLET && e2.getEntityType() == EntityType.ASTEROID_SPLIT) {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8081/score?amount=1"))
@@ -227,7 +150,7 @@ public class CollisionDetection implements IPostEntityProcessingService{
             try {
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
             } catch (Exception e) {
-                System.out.println(e.getStackTrace());
+                //System.out.println(e.getStackTrace());
             }
         }
     }

@@ -199,7 +199,7 @@ public class Game {
                     lastPointUpdateTime = currentTime;
                     scoreText.setText("Score: " + score);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }
