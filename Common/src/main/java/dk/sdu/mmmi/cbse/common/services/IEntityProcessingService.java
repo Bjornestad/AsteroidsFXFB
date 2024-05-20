@@ -11,7 +11,10 @@ public interface IEntityProcessingService {
      *
      * @param gameData
      * @param world
-     * @throws
+     *
+     * Pre-condition: gameData not null, world not null
+     * Post-condition : Classes implementing interface will have their process method called
+     * updating them each game loop
      */
     void process(GameData gameData, World world);
 }

@@ -4,6 +4,10 @@ public class GameData {
 
     private int displayWidth  = 800 ;
     private int displayHeight = 800;
+
+
+
+    private long lastShotTimer = 0;
     private final GameKeys keys = new GameKeys();
 
 
@@ -25,6 +29,13 @@ public class GameData {
 
     public int getDisplayHeight() {
         return displayHeight;
+    }
+    public long getLastShotTimer() {
+        return lastShotTimer;
+    }
+
+    public void setLastShotTimer(long lastShotTimer) {
+        this.lastShotTimer = lastShotTimer;
     }
 
 
