@@ -24,6 +24,7 @@
         <module>ScoringSystem</module>
         <module>CommonPlayer</module>
         <module>CommonEnemy</module>
+        <module>SplitPackage</module>
     </modules>
     <properties>
         <java>java</java>
